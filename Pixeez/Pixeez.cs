@@ -72,6 +72,11 @@ namespace Pixeez
 
             return new Tokens(authorize.AccessToken);
         }
+
+        public static Tokens AuthorizeWithAccessToken(string accessToken)
+        {
+            return new Tokens(accessToken);
+        }
     }
 
     public class Tokens
@@ -128,11 +133,6 @@ namespace Pixeez
             }
 
             return asyncResponse;
-
-            //var json = await response.Content.ReadAsStringAsync();
-            //var res = JToken.Parse(json).SelectToken("response").ToObject<T>();
-            //if (pagenation)
-            //    (res as IPagenated).Pagination = JToken.Parse(json).SelectToken("pagination").ToObject<Pagination>();
         }
 
         private async Task<T> AccessApiAsync<T>(MethodType type, string url, IDictionary<string, string> param, IDictionary<string, string> headers = null) where T : class
@@ -318,6 +318,24 @@ namespace Pixeez
                 { "order", order } ,
                 { "sort", sort } ,
                 { "mode", mode } ,
+
+                { "include_stats", "1" } ,
+                { "include_sanity_level", Convert.ToInt32(includeSanityLevel).ToString() } ,
+                { "image_sizes", "px_128x128,small,medium,large,px_480mw" } ,
+                { "profile_image_sizes", "px_170x170,px_50x50" } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<Work>>(MethodType.GET, url, param);
+        }
+
+        public async Task<Paginated<Work>> GetLatestWorksAsync(int page = 1, int perPage = 30, bool includeSanityLevel = true)
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "page", page.ToString() } ,
+                { "per_page", perPage.ToString() } ,
 
                 { "include_stats", "1" } ,
                 { "include_sanity_level", Convert.ToInt32(includeSanityLevel).ToString() } ,
