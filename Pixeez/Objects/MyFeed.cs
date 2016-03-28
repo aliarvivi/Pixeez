@@ -11,7 +11,7 @@ namespace Pixeez.Objects
     {
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("title")]
         public string Title { get; set; }
@@ -36,17 +36,17 @@ namespace Pixeez.Objects
     {
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("tags")]
         public IList<string> Tags { get; set; }
     }
 
-    public class MyFeed
+    public class Feed
     {
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
@@ -58,7 +58,7 @@ namespace Pixeez.Objects
         public string PostTime { get; set; }
 
         [JsonProperty("post_date")]
-        public string PostDate { get; set; }
+        public DateTimeOffset PostDate { get; set; }
 
         [JsonProperty("ref_work")]
         public RefWork RefWork { get; set; }

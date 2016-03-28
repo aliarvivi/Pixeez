@@ -11,7 +11,7 @@ namespace Pixeez.Objects
     {
 
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("title")]
         public string Title { get; set; }
@@ -44,7 +44,7 @@ namespace Pixeez.Objects
         public string AgeLimit { get; set; }
 
         [JsonProperty("created_time")]
-        public string CreatedTime { get; set; }
+        public DateTimeOffset CreatedTime { get; set; }
 
         [JsonProperty("reuploaded_time")]
         public string ReuploadedTime { get; set; }
@@ -59,7 +59,7 @@ namespace Pixeez.Objects
         public bool? IsLiked { get; set; }
 
         [JsonProperty("favorite_id")]
-        public int? FavoriteId { get; set; }
+        public long? FavoriteId { get; set; }
 
         [JsonProperty("page_count")]
         public int PageCount { get; set; }

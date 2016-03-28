@@ -14,6 +14,7 @@ namespace Pixeez
     {
         GET = 0,
         POST = 1,
+        DELETE = 2,
     }
 
     public class AsyncResponse : IDisposable
@@ -48,6 +49,12 @@ namespace Pixeez
 
     public class Auth
     {
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>string</c> username (required)</para>
+        /// <para>- <c>string</c> password (required)</para>
+        /// </summary>
+        /// <returns>Tokens.</returns>
         public static async Task<Tokens> AuthorizeAsync(string username, string password)
         {
             var httpClient = new HttpClient();
@@ -88,6 +95,14 @@ namespace Pixeez
             this.AccessToken = accessToken;
         }
 
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>MethodType</c> type (required) [ GET, POST ]</para>
+        /// <para>- <c>string</c> url (required)</para>
+        /// <para>- <c>IDictionary</c> param (required)</para>
+        /// <para>- <c>IDictionary</c> header (optional)</para>
+        /// </summary>
+        /// <returns>AsyncResponse.</returns>
         public async Task<AsyncResponse> SendRequestAsync(MethodType type, string url, IDictionary<string, string> param, IDictionary<string, string> headers = null)
         {
             var httpClient = new HttpClient();
@@ -107,6 +122,28 @@ namespace Pixeez
             {
                 var reqParam = new FormUrlEncodedContent(param);
                 var response = await httpClient.PostAsync(url, reqParam);
+                asyncResponse = new AsyncResponse(response);
+            }
+            else if (type == MethodType.DELETE)
+            {
+                var uri = url;
+
+                if (param != null)
+                {
+                    var query_string = "";
+                    foreach (KeyValuePair<string, string> kvp in param)
+                    {
+                        if (query_string == "")
+                            query_string += "?";
+                        else
+                            query_string += "&";
+
+                        query_string += kvp.Key + "=" + WebUtility.UrlEncode(kvp.Value);
+                    }
+                    uri += query_string;
+                }
+                
+                var response = await httpClient.DeleteAsync(uri);
                 asyncResponse = new AsyncResponse(response);
             }
             else
@@ -192,10 +229,11 @@ namespace Pixeez
 
         /// <summary>
         /// <para>Available parameters:</para>
+        /// <para>- <c>long</c> maxId (optional)</para>
         /// <para>- <c>bool</c> showR18 (optional)</para>
         /// </summary>
-        /// <returns>MyFeeds.</returns>
-        public async Task<List<MyFeed>> GetMyFeedsAsync(bool showR18 = true)
+        /// <returns>Feeds.</returns>
+        public async Task<List<Feed>> GetMyFeedsAsync(long maxId = 0, bool showR18 = true)
         {
             var url = "https://public-api.secure.pixiv.net/v1/me/feeds.json";
 
@@ -205,8 +243,121 @@ namespace Pixeez
                 { "type", "touch_nottext" } ,
                 { "show_r18", Convert.ToInt32(showR18).ToString() } ,
             };
+            
+            if (maxId != 0)
+                param.Add("max_id", maxId.ToString());
 
-            return await this.AccessApiAsync<List<MyFeed>>(MethodType.GET, url, param);
+            return await this.AccessApiAsync<List<Feed>>(MethodType.GET, url, param);
+        }
+
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>int</c> page (optional)</para>
+        /// <para>- <c>int</c> perPage (optional)</para>
+        /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
+        /// <para>- <c>bool</c> includeSanityLevel (optional)</para>
+        /// </summary>
+        /// <returns>UsersFavoriteWorks. (Pagenated)</returns>
+        public async Task<Paginated<UsersFavoriteWork>> GetMyFavoriteWorksAsync(int page = 1, int perPage = 30, string publicity = "public", bool includeSanityLevel = true)
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "page", page.ToString() } ,
+                { "per_page", perPage.ToString() } ,
+                { "publicity", publicity } ,
+                { "include_stats", "1" } ,
+                { "include_sanity_level", Convert.ToInt32(includeSanityLevel).ToString() } ,
+                { "image_sizes", "px_128x128,small,medium,large,px_480mw" } ,
+                { "profile_image_sizes", "px_170x170,px_50x50" } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.GET, url, param);
+        }
+        
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>long</c> workID (required)</para>
+        /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
+        /// </summary>
+        /// <returns>UsersWorks. (Pagenated)</returns>
+        public async Task<Paginated<UsersFavoriteWork>> AddMyFavoriteWorksAsync(long workId, string publicity = "public")
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "work_id", publicity } ,
+                { "publicity", publicity } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.POST, url, param);
+        }
+
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>IEnumerable</c> workIds (required)</para>
+        /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
+        /// </summary>
+        /// <returns>UsersWorks. (Pagenated)</returns>
+        public async Task<Paginated<UsersFavoriteWork>> DeleteMyFavoriteWorksAsync(IEnumerable<long> workIds, string publicity = "public")
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "work_id", string.Join(",", workIds.Select(x => x.ToString())) } ,
+                { "publicity", publicity } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.DELETE, url, param);
+        }
+
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>long</c> workId (required)</para>
+        /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
+        /// </summary>
+        /// <returns>UsersWorks. (Pagenated)</returns>
+        public async Task<Paginated<UsersFavoriteWork>> DeleteMyFavoriteWorksAsync(long workId, string publicity = "public")
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "work_id", workId.ToString() } ,
+                { "publicity", publicity } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.DELETE, url, param);
+        }
+
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>long</c> authorId (required)</para>
+        /// <para>- <c>int</c> page (optional)</para>
+        /// <para>- <c>int</c> perPage (optional)</para>
+        /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
+        /// <para>- <c>bool</c> includeSanityLevel (optional)</para>
+        /// </summary>
+        /// <returns>UsersWorks. (Pagenated)</returns>
+        public async Task<Paginated<UsersWork>> GetMyFollowingWorksAsync(int page = 1, int perPage = 30, string publicity = "public", bool includeSanityLevel = true)
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/me/following/works.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "page", page.ToString() } ,
+                { "per_page", perPage.ToString() } ,
+                { "publicity", publicity } ,
+                { "include_stats", "1" } ,
+                { "include_sanity_level", Convert.ToInt32(includeSanityLevel).ToString() } ,
+                { "image_sizes", "px_128x128,small,medium,large,px_480mw" } ,
+                { "profile_image_sizes", "px_170x170,px_50x50" } ,
+            };
+
+            return await this.AccessApiAsync<Paginated<UsersWork>>(MethodType.GET, url, param);
         }
 
         /// <summary>
@@ -265,10 +416,33 @@ namespace Pixeez
 
         /// <summary>
         /// <para>Available parameters:</para>
+        /// <para>- <c>long</c> maxId (optional)</para>
+        /// <para>- <c>bool</c> showR18 (optional)</para>
+        /// </summary>
+        /// <returns>Feed.</returns>
+        public async Task<List<Feed>> GetUsersFeedsAsync(long authorId, long maxId = 0, bool showR18 = true)
+        {
+            var url = "https://public-api.secure.pixiv.net/v1/users/" + authorId.ToString() + "/feeds.json";
+
+            var param = new Dictionary<string, string>
+            {
+                { "relation", "all" } ,
+                { "type", "touch_nottext" } ,
+                { "show_r18", Convert.ToInt32(showR18).ToString() } ,
+            };
+
+            if (maxId != 0)
+                param.Add("max_id", maxId.ToString());
+
+            return await this.AccessApiAsync<List<Feed>>(MethodType.GET, url, param);
+        }
+
+        /// <summary>
+        /// <para>Available parameters:</para>
         /// <para>- <c>string</c> mode (optional) [ daily, weekly, monthly, male, female, rookie, daily_r18, weekly_r18, male_r18, female_r18, r18g ]</para>
         /// <para>- <c>int</c> page (optional)</para>
         /// <para>- <c>int</c> perPage (optional)</para>
-        /// <para>- <c>string</c> date (optional) [ "2015-04-01" ]</para>
+        /// <para>- <c>string</c> date (optional) [ 2015-04-01 ]</para>
         /// <para>- <c>bool</c> includeSanityLevel (optional)</para>
         /// </summary>
         /// <returns>RankingAll. (Pagenated)</returns>
@@ -298,10 +472,10 @@ namespace Pixeez
         /// <para>- <c>string</c> q (required)</para>
         /// <para>- <c>int</c> page (optional)</para>
         /// <para>- <c>int</c> perPage (optional)</para>
-        /// <para>- <c>string</c> mode (optional)</para>
-        /// <para>- <c>string</c> period (optional)</para>
-        /// <para>- <c>string</c> order (optional)</para>
-        /// <para>- <c>string</c> sort (optional)</para>
+        /// <para>- <c>string</c> mode (optional) [ text, tag, exact_tag, caption ]</para>
+        /// <para>- <c>string</c> period (optional) [ all, day, week, month ]</para>
+        /// <para>- <c>string</c> order (optional) [ desc, asc ]</para>
+        /// <para>- <c>string</c> sort (optional) [ date ]</para>
         /// <para>- <c>bool</c> includeSanityLevel (optional)</para>
         /// </summary>
         /// <returns>Works. (Pagenated)</returns>
@@ -328,6 +502,13 @@ namespace Pixeez
             return await this.AccessApiAsync<Paginated<Work>>(MethodType.GET, url, param);
         }
 
+        /// <summary>
+        /// <para>Available parameters:</para>
+        /// <para>- <c>int</c> page (optional)</para>
+        /// <para>- <c>int</c> perPage (optional)</para>
+        /// <para>- <c>bool</c> includeSanityLevel (optional)</para>
+        /// </summary>
+        /// <returns>Works. (Pagenated)</returns>
         public async Task<Paginated<Work>> GetLatestWorksAsync(int page = 1, int perPage = 30, bool includeSanityLevel = true)
         {
             var url = "https://public-api.secure.pixiv.net/v1/works.json";

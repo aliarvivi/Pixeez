@@ -17,7 +17,7 @@ namespace Pixeez.Objects
         public string Mode { get; set; }
 
         [JsonProperty("date")]
-        public string Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         [JsonProperty("works")]
         public IList<RankWork> Works { get; set; }
@@ -27,10 +27,10 @@ namespace Pixeez.Objects
     {
 
         [JsonProperty("rank")]
-        public int Rank { get; set; }
+        public int? Rank { get; set; }
 
         [JsonProperty("previous_rank")]
-        public int PreviousRank { get; set; }
+        public int? PreviousRank { get; set; }
 
         [JsonProperty("work")]
         public Work Work { get; set; }

@@ -11,7 +11,7 @@ namespace Pixeez.Objects
     {
 
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("comment")]
         public string Comment { get; set; }
