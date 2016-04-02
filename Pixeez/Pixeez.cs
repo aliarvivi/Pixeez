@@ -282,17 +282,21 @@ namespace Pixeez
         /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
         /// </summary>
         /// <returns>UsersWorks. (Pagenated)</returns>
-        public async Task<Paginated<UsersFavoriteWork>> AddMyFavoriteWorksAsync(long workId, string publicity = "public")
+        public async Task<List<UsersFavoriteWork>> AddMyFavoriteWorksAsync(long workId, string comment = "", IEnumerable<string> tags = null, string publicity = "public")
         {
             var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
 
             var param = new Dictionary<string, string>
             {
-                { "work_id", publicity } ,
+                { "work_id", workId.ToString() } ,
                 { "publicity", publicity } ,
+                { "comment", comment } ,
             };
 
-            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.POST, url, param);
+            if (tags != null)
+                param.Add("tags", string.Join(",", tags));
+
+            return await this.AccessApiAsync<List<UsersFavoriteWork>>(MethodType.POST, url, param);
         }
 
         /// <summary>
@@ -301,7 +305,7 @@ namespace Pixeez
         /// <para>- <c>string</c> publicity (optional) [ public, private ]</para>
         /// </summary>
         /// <returns>UsersWorks. (Pagenated)</returns>
-        public async Task<Paginated<UsersFavoriteWork>> DeleteMyFavoriteWorksAsync(IEnumerable<long> workIds, string publicity = "public")
+        public async Task<List<UsersFavoriteWork>> DeleteMyFavoriteWorksAsync(IEnumerable<long> workIds, string publicity = "public")
         {
             var url = "https://public-api.secure.pixiv.net/v1/me/favorite_works.json";
 
@@ -311,7 +315,7 @@ namespace Pixeez
                 { "publicity", publicity } ,
             };
 
-            return await this.AccessApiAsync<Paginated<UsersFavoriteWork>>(MethodType.DELETE, url, param);
+            return await this.AccessApiAsync<List<UsersFavoriteWork>>(MethodType.DELETE, url, param);
         }
 
         /// <summary>
