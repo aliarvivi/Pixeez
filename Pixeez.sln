@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixeez", "Pixeez\Pixeez.csproj", "{06950FE8-5F63-4931-83DF-B70002281CB5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixeez.Demo", "Pixeez.Demo\Pixeez.Demo.csproj", "{874699D7-B55C-42DF-8076-304069C12850}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixeez.Test", "Pixeez.Test\Pixeez.Test.csproj", "{466D66C9-5F4D-4C52-B6F4-F37EE8CCF506}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,15 @@ Global
 		{874699D7-B55C-42DF-8076-304069C12850}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{874699D7-B55C-42DF-8076-304069C12850}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{874699D7-B55C-42DF-8076-304069C12850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{466D66C9-5F4D-4C52-B6F4-F37EE8CCF506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{466D66C9-5F4D-4C52-B6F4-F37EE8CCF506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{466D66C9-5F4D-4C52-B6F4-F37EE8CCF506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{466D66C9-5F4D-4C52-B6F4-F37EE8CCF506}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14004CDB-2358-491E-BD93-EED4FC639762}
 	EndGlobalSection
 EndGlobal

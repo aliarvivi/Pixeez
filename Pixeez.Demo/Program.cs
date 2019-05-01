@@ -17,7 +17,7 @@ namespace Pixeez.Demo
         static async Task PixivDemo()
         {
             // Create Tokens
-            var tokens = await Pixeez.Auth.AuthorizeAsync("username", "password");
+            var tokens = await Pixeez.Auth.AuthorizeAsync("xup6u43838@gmail.com", "78951236");
 
             /*var work = await tokens.GetWorksAsync(51796422);
             var user = await tokens.GetUsersAsync(11972);
@@ -29,9 +29,10 @@ namespace Pixeez.Demo
 
             var results = new List<Pixeez.Objects.Work>();
 
-            int page = 1, imageCount = int.MaxValue;
+            int page = 1, PerPage = 30, imageCount = int.MaxValue;
             while (true)
             {
+                Console.WriteLine("1");
                 var search = await tokens.SearchWorksAsync("フランドール・スカーレット", page: page, perPage: PerPage, mode: "exact_tag");
                 imageCount = search.Pagination.Total.Value;
                 foreach (var s in search)
